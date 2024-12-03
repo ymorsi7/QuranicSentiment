@@ -44,15 +44,67 @@ def analyze_sentiment_enhanced(text):
     words = word_tokenize(text)
     pos_tags = nltk.pos_tag(words)
     
-    # Count important POS tags that might indicate emotional content
-    imperatives = sum(1 for _, tag in pos_tags if tag.startswith('VB'))
-    adjectives = sum(1 for _, tag in pos_tags if tag.startswith('JJ'))
+    # Enhanced POS tag analysis with weights
+    linguistic_features = {
+        'imperatives': sum(2 for _, tag in pos_tags if tag.startswith('VB')),
+        'adjectives': sum(1.5 for _, tag in pos_tags if tag.startswith('JJ')),
+        'adverbs': sum(1.2 for _, tag in pos_tags if tag.startswith('RB')),
+        'nouns': sum(0.8 for _, tag in pos_tags if tag.startswith('NN'))
+    }
     
-    # Calculate confidence score based on multiple factors
-    confidence = (abs(vader_scores['compound']) * 0.4 +  # Strong sentiment indicates higher confidence
-                 blob.sentiment.subjectivity * 0.3 +    # Higher subjectivity often indicates clearer emotion
-                 (imperatives / len(words) if words else 0) * 0.15 +  # Presence of imperatives
-                 (adjectives / len(words) if words else 0) * 0.15)    # Presence of descriptive words
+    # Expanded emotional word lists specific to Quranic context
+    emotional_words = {
+        'joyful': [
+            'paradise', 'reward', 'blessed', 'mercy', 'glad', 'rejoice', 'happy', 'delight', 
+            'pleasure', 'bliss', 'joy', 'garden', 'success', 'triumph', 'victory'
+        ],
+        'peaceful': [
+            'peace', 'tranquil', 'calm', 'gentle', 'harmony', 'serene', 'quiet', 'still',
+            'rest', 'ease', 'comfort', 'secure', 'safe', 'protect', 'guide'
+        ],
+        'fearful': [
+            'fear', 'punishment', 'warning', 'terrible', 'severe', 'doom', 'torment', 
+            'horror', 'dread', 'terror', 'frightful', 'awful', 'painful', 'suffering'
+        ],
+        'angry': [
+            'wrath', 'curse', 'condemn', 'destroy', 'vengeance', 'fury', 'rage', 
+            'anger', 'punishment', 'disgrace', 'humiliate', 'shame', 'painful'
+        ],
+        'remorseful': [
+            'forgive', 'repent', 'sorry', 'regret', 'mercy', 'pardon', 'forgiveness',
+            'guilt', 'shame', 'wrong', 'sin', 'mistake', 'error', 'return'
+        ],
+        'reflective': [
+            'ponder', 'think', 'reflect', 'contemplate', 'consider', 'remember',
+            'understand', 'wisdom', 'sign', 'lesson', 'example', 'learn', 'know'
+        ]
+    }
+    
+    # Calculate emotional scores with context
+    emotional_scores = {}
+    lower_text = text.lower()
+    for emotion, words_list in emotional_words.items():
+        # Count exact matches and partial matches
+        exact_matches = sum(2 for word in words_list if f" {word} " in f" {lower_text} ")
+        partial_matches = sum(1 for word in words_list if word in lower_text)
+        total_score = (exact_matches + partial_matches) / (len(words_list) * 2)
+        emotional_scores[emotion] = min(1.0, total_score * 1.5)  # Scale up but cap at 1.0
+    
+    # Enhanced confidence calculation
+    base_confidence = abs(vader_scores['compound'])
+    emotional_intensity = max(emotional_scores.values()) if emotional_scores else 0
+    linguistic_intensity = sum(linguistic_features.values()) / (len(words) + 1)
+    
+    # Weighted confidence calculation
+    confidence = (
+        base_confidence * 0.25 +  # VADER sentiment
+        (blob.sentiment.subjectivity * 0.15) +  # TextBlob subjectivity
+        (emotional_intensity * 0.4) +  # Emotional keyword matching (increased weight)
+        min(1.0, linguistic_intensity) * 0.2  # Linguistic features
+    )
+    
+    # Apply enhanced sigmoid scaling
+    confidence = 1 / (1 + np.exp(-6 * (confidence - 0.3)))  # Adjusted parameters
     
     return {
         'compound': vader_scores['compound'],
@@ -61,23 +113,35 @@ def analyze_sentiment_enhanced(text):
         'neu': vader_scores['neu'],
         'polarity': blob.sentiment.polarity,
         'subjectivity': blob.sentiment.subjectivity,
-        'imperatives': imperatives / len(words) if words else 0,
-        'adjectives': adjectives / len(words) if words else 0,
-        'confidence': min(confidence, 1.0)  # Cap confidence at 1.0
+        'imperatives': linguistic_features['imperatives'] / (len(words) + 1),
+        'adjectives': linguistic_features['adjectives'] / (len(words) + 1),
+        'emotional_scores': emotional_scores,
+        'confidence': confidence
     }
 
 def get_emotion_category_enhanced(sentiment):
     compound = sentiment['compound']
     subjectivity = sentiment['subjectivity']
-    neg = sentiment['neg']
+    emotional_scores = sentiment['emotional_scores']
     
-    if compound <= -0.6 and neg >= 0.5:
-        return 'angry'
-    elif compound >= 0.5:
-        return 'joyful'
-    elif compound <= -0.5:
-        return 'fearful'
-    elif compound > 0 and subjectivity < 0.4:
+    # Get the dominant emotion from keyword analysis
+    dominant_emotion = max(emotional_scores.items(), key=lambda x: x[1])[0] if emotional_scores else None
+    
+    # Combine VADER sentiment with keyword analysis
+    if abs(compound) >= 0.5:  # Strong sentiment
+        if compound >= 0.5 and emotional_scores.get('joyful', 0) > 0:
+            return 'joyful'
+        elif compound <= -0.5 and emotional_scores.get('angry', 0) > 0:
+            return 'angry'
+        elif compound <= -0.5 and emotional_scores.get('fearful', 0) > 0:
+            return 'fearful'
+    
+    # Use emotional scores for more nuanced classification
+    if dominant_emotion and emotional_scores[dominant_emotion] > 0.3:
+        return dominant_emotion
+    
+    # Default classifications based on compound and subjectivity
+    if compound > 0 and subjectivity < 0.4:
         return 'peaceful'
     elif compound < 0 and subjectivity > 0.6:
         return 'remorseful'
@@ -90,7 +154,7 @@ def process_verses(df):
     sentiments = df['text'].apply(analyze_sentiment_enhanced)
     
     # Extract all sentiment features
-    for feature in ['compound', 'pos', 'neg', 'neu', 'polarity', 'subjectivity', 'imperatives', 'adjectives', 'confidence']:
+    for feature in ['compound', 'pos', 'neg', 'neu', 'polarity', 'subjectivity', 'imperatives', 'adjectives', 'emotional_scores', 'confidence']:
         df[feature] = sentiments.apply(lambda x: x[feature])
     
     # Apply enhanced emotion categorization

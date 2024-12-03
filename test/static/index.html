@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quranic Emotional Verses</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .joyful { background-color: #FFD700; }
+        .peaceful { background-color: #98FB98; }
+        .fearful { background-color: #FFA07A; }
+        .angry { background-color: #FF6B6B; }
+        .remorseful { background-color: #87CEEB; }
+        .reflective { background-color: #DDA0DD; }
+
+        #verse-display {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            min-height: 150px;
+        }
+
+        .verse-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .verse-reference {
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quranic Verses by Emotion</h1>
+        <div class="button-container">
+            <button class="joyful" onclick="getVerse('joyful')">Joyful</button>
+            <button class="peaceful" onclick="getVerse('peaceful')">Peaceful</button>
+            <button class="fearful" onclick="getVerse('fearful')">Fearful</button>
+            <button class="angry" onclick="getVerse('angry')">Angry</button>
+            <button class="remorseful" onclick="getVerse('remorseful')">Remorseful</button>
+            <button class="reflective" onclick="getVerse('reflective')">Reflective</button>
+        </div>
+        <div id="verse-display">
+            <p class="verse-text">Select an emotion to receive a verse...</p>
+            <p class="verse-reference"></p>
+        </div>
+    </div>
+
+    <script>
+        async function getVerse(emotion) {
+            try {
+                const response = await fetch(`/api/verse/${emotion}`);
+                const verse = await response.json();
+                
+                document.querySelector('.verse-text').textContent = verse.text;
+                document.querySelector('.verse-reference').textContent = 
+                    `${verse.surah_name}, Verse ${verse.ayah_no}`;
+            } catch (error) {
+                console.error('Error fetching verse:', error);
+            }
+        }
+    </script>
+</body>
+</html> 
