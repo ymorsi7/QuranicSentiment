@@ -337,7 +337,6 @@
             const input = document.getElementById('emotion-input').value.toLowerCase();
             if (!input.trim()) return;
 
-            // Find matching emotion based on keywords
             let matchedEmotion = null;
             let highestScore = 0;
 
@@ -353,18 +352,21 @@
             }
 
             if (matchedEmotion) {
-                getVerse(matchedEmotion);
-                // Highlight the corresponding emotion button
-                const buttons = document.querySelectorAll('.button-container button');
-                buttons.forEach(btn => {
-                    if (btn.classList.contains(matchedEmotion)) {
-                        btn.style.transform = 'scale(1.05)';
-                        setTimeout(() => btn.style.transform = 'translateY(-5px)', 200);
-                    }
-                });
+                // Find the corresponding button and animate it
+                const matchedButton = document.querySelector(`.button-container .${matchedEmotion}`);
+                if (matchedButton) {
+                    matchedButton.style.transform = 'scale(0.95)';
+                    setTimeout(() => matchedButton.style.transform = 'translateY(-5px)', 200);
+                }
+                getVerse(matchedEmotion, matchedButton);
             } else {
                 // Default to reflective if no emotion is matched
-                getVerse('reflective');
+                const reflectiveButton = document.querySelector('.button-container .reflective');
+                if (reflectiveButton) {
+                    reflectiveButton.style.transform = 'scale(0.95)';
+                    setTimeout(() => reflectiveButton.style.transform = 'translateY(-5px)', 200);
+                }
+                getVerse('reflective', reflectiveButton);
             }
         }
     </script>
