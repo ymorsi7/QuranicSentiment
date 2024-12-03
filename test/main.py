@@ -10,6 +10,15 @@ import nltk
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 
+EMOTION_MAPPING = {
+    'angry': 'peaceful',
+    'fearful': 'joyful',
+    'remorseful': 'reflective',
+    'reflective': 'joyful',
+    'joyful': 'remorseful',
+    'peaceful': 'remorseful'
+}
+
 def load_quran_data(file_path='quran.json'):
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)

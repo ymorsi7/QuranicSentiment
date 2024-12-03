@@ -10,6 +10,15 @@ nltk.download('averaged_perceptron_tagger')
 
 app = Flask(__name__)
 
+EMOTION_MAPPING = {
+    'angry': 'peaceful',
+    'fearful': 'joyful',
+    'remorseful': 'reflective',
+    'reflective': 'joyful',
+    'joyful': 'remorseful',
+    'peaceful': 'remorseful'
+}
+
 def load_quran_data():
     with open('quran.json', 'r', encoding='utf-8') as file:
         data = json.load(file)
@@ -63,14 +72,17 @@ def home():
 
 @app.route('/api/verse/<emotion>')
 def get_verse(emotion):
-    emotion_verses = df[df['emotion'] == emotion]
+    counter_emotion = EMOTION_MAPPING.get(emotion, emotion)
+    emotion_verses = df[df['emotion'] == counter_emotion]
     
     if emotion_verses.empty:
-        return jsonify({'error': 'No verses found for this emotion'}), 404
+        return jsonify({'error': f'No verses found for emotion {counter_emotion}'}), 404
     
     verse = emotion_verses.sample(1).iloc[0]
     
     return jsonify({
+        'original_emotion': emotion,
+        'counterbalancing_emotion': counter_emotion,
         'text': verse['text'],
         'surah_name': verse['surah_name'],
         'ayah_no': int(verse['ayah_no']),
@@ -92,9 +104,25 @@ def analyze_emotion():
     else:
         emotion = 'remorseful' if subjectivity > 0.5 else 'reflective'
     
+    counter_emotion = EMOTION_MAPPING.get(emotion, 'reflective')
+    emotion_verses = df[df['emotion'] == counter_emotion]
+    
+    if emotion_verses.empty:
+        recommended_verse = None
+    else:
+        verse = emotion_verses.sample(1).iloc[0]
+        recommended_verse = {
+            'text': verse['text'],
+            'surah_name': verse['surah_name'],
+            'ayah_no': int(verse['ayah_no']),
+            'confidence': float(verse['confidence'])
+        }
+    
     return jsonify({
         'emotion': emotion,
-        'confidence': abs(polarity)
+        'confidence': abs(polarity),
+        'counterbalancing_emotion': counter_emotion,
+        'recommended_verse': recommended_verse
     })
 
 if __name__ == '__main__':
