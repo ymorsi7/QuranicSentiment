@@ -2,6 +2,8 @@
 
 An intelligent web application that provides relevant Quranic verses based on emotional states, combining sentiment analysis with spiritual guidance.
 
+🌐 **Live Site**: [https://ymorsi7.github.io/QuranicSentiment/](https://ymorsi7.github.io/QuranicSentiment/)
+
 ## Features 🌟
 
 - **Emotion Detection** 🎭
@@ -48,7 +50,7 @@ An intelligent web application that provides relevant Quranic verses based on em
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/QuranicSentiment.git
+git clone https://github.com/ymorsi7/QuranicSentiment.git
 cd QuranicSentiment
 ```
 
@@ -127,11 +129,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact 📬
 
-Yusuf Morsi
+Contributors:
+- Yusuf Morsi
+- Younus Ahmad
+- Ali Alani
 
-Younus Ahmad 
-
-Ali Alani
-
-
-Project Link: [https://github.com/ymorsi7/QuranicSentiment](https://github.com/yourusername/QuranicSentiment)
+Project Links:
+- Repository: [https://github.com/ymorsi7/QuranicSentiment](https://github.com/ymorsi7/QuranicSentiment)
+- Live Site: [https://ymorsi7.github.io/QuranicSentiment/](https://ymorsi7.github.io/QuranicSentiment/)
