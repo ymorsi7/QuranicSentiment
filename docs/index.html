@@ -270,13 +270,17 @@
                 const data = await response.json();
                 const allVerses = [];
 
-                // Iterate through each surah
-                for (const surah of Object.values(data)) {
-                    if (Array.isArray(surah)) {
-                        for (const verse of surah) {
-                            const verseEmotion = determineEmotion(verse.ayah_en, verse.value);
-                            if (verseEmotion === emotion) {
-                                allVerses.push(verse);
+                // Process each surah in the children array
+                if (data && Array.isArray(data.children)) {
+                    for (const surah of data.children) {
+                        if (surah && Array.isArray(surah.children)) {
+                            for (const verse of surah.children) {
+                                if (verse && verse.ayah_en && verse.value !== undefined) {
+                                    const verseEmotion = determineEmotion(verse.ayah_en, verse.value);
+                                    if (verseEmotion === emotion) {
+                                        allVerses.push(verse);
+                                    }
+                                }
                             }
                         }
                     }
@@ -305,24 +309,27 @@
         }
 
         function determineEmotion(text, value) {
-            // Simple emotion determination based on text content and value
-            text = text.toLowerCase();
+            if (!text || typeof text !== 'string') return 'reflective';
             
-            if (text.includes('joy') || text.includes('happy') || text.includes('blessed') || value > 30) {
-                return 'joyful';
-            }
-            if (text.includes('peace') || text.includes('calm') || (value >= 20 && value <= 30)) {
-                return 'peaceful';
-            }
-            if (text.includes('fear') || text.includes('afraid') || value < 10) {
-                return 'fearful';
-            }
-            if (text.includes('anger') || text.includes('wrath') || text.includes('punishment')) {
-                return 'angry';
-            }
-            if (text.includes('regret') || text.includes('sorry') || text.includes('forgive')) {
-                return 'remorseful';
-            }
+            text = text.toLowerCase();
+            value = Number(value) || 0;
+            
+            // Value-based determination first
+            if (value >= 25) return 'joyful';
+            if (value >= 20) return 'peaceful';
+            if (value >= 15) return 'reflective';
+            if (value >= 10) return 'remorseful';
+            if (value >= 5) return 'angry';
+            if (value < 5) return 'fearful';
+            
+            // Text-based determination as backup
+            if (text.includes('paradise') || text.includes('reward') || text.includes('blessed')) return 'joyful';
+            if (text.includes('peace') || text.includes('mercy')) return 'peaceful';
+            if (text.includes('fear') || text.includes('scared') || text.includes('afraid')) return 'fearful';
+            if (text.includes('anger') || text.includes('mad') || text.includes('furious') || text.includes('rage')) return 'angry';
+            if (text.includes('regret') || text.includes('sorry') || text.includes('guilt') || text.includes('ashamed')) return 'remorseful';
+            if (text.includes('think') || text.includes('ponder') || text.includes('contemplate') || text.includes('wonder')) return 'reflective';
+            
             return 'reflective'; // default emotion
         }
 
@@ -330,27 +337,11 @@
             const input = document.getElementById('emotion-input').value.toLowerCase();
             if (!input.trim()) return;
 
-            // Use conversational emotional words for text analysis
-            const conversationalKeywords = {
-                joyful: ['happy', 'excited', 'delighted', 'glad', 'cheerful', 'thrilled',
-                         'wonderful', 'fantastic', 'amazing', 'great', 'love', 'enjoy',
-                         'fun', 'pleased', 'satisfied', 'proud', 'blessed', 'grateful'],
-                peaceful: ['calm', 'relaxed', 'peaceful', 'quiet', 'tranquil', 'serene',
-                          'content', 'comfortable', 'safe', 'secure', 'balanced', 'steady'],
-                fearful: ['scared', 'afraid', 'worried', 'anxious', 'nervous', 'terrified',
-                         'frightened', 'uneasy', 'stressed', 'panicked', 'overwhelmed'],
-                angry: ['angry', 'mad', 'furious', 'annoyed', 'irritated', 'frustrated',
-                        'upset', 'outraged', 'hate', 'bitter', 'enraged', 'hostile'],
-                remorseful: ['sorry', 'regret', 'guilty', 'ashamed', 'apologetic', 'bad',
-                            'mistake', 'fault', 'disappointed', 'failed', 'remorse'],
-                reflective: ['think', 'wonder', 'consider', 'realize', 'understand', 'feel',
-                            'sense', 'believe', 'suppose', 'guess', 'maybe', 'perhaps']
-            };
-
+            // Find matching emotion based on keywords
             let matchedEmotion = null;
             let highestScore = 0;
 
-            for (const [emotion, keywords] of Object.entries(conversationalKeywords)) {
+            for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
                 const score = keywords.reduce((count, keyword) => {
                     return count + (input.includes(keyword) ? 1 : 0);
                 }, 0);
@@ -362,20 +353,17 @@
             }
 
             if (matchedEmotion) {
-                // Animate the matched emotion button
-                const matchedButton = document.querySelector(`.button-container .${matchedEmotion}`);
-                if (matchedButton) {
-                    matchedButton.style.transform = 'scale(0.95)';
-                    setTimeout(() => matchedButton.style.transform = 'translateY(-5px)', 200);
-                }
                 getVerse(matchedEmotion);
+                // Highlight the corresponding emotion button
+                const buttons = document.querySelectorAll('.button-container button');
+                buttons.forEach(btn => {
+                    if (btn.classList.contains(matchedEmotion)) {
+                        btn.style.transform = 'scale(1.05)';
+                        setTimeout(() => btn.style.transform = 'translateY(-5px)', 200);
+                    }
+                });
             } else {
                 // Default to reflective if no emotion is matched
-                const reflectiveButton = document.querySelector('.button-container .reflective');
-                if (reflectiveButton) {
-                    reflectiveButton.style.transform = 'scale(0.95)';
-                    setTimeout(() => reflectiveButton.style.transform = 'translateY(-5px)', 200);
-                }
                 getVerse('reflective');
             }
         }
