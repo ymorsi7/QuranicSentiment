@@ -215,21 +215,19 @@ def analyze_sentiment_enhanced(text, context='quranic'):
         ]
     }
     
-    # Choose appropriate dictionary based on context
     words_dict = emotional_words if context == 'quranic' else conversational_emotional_words
     
     emotional_scores = {}
     lower_text = text.lower()
     words = lower_text.split()
     
-    # Define primary emotion words that should have higher weight
     primary_emotions = {
-        'fearful': ['fear', 'scared', 'afraid', 'terrified'],
-        'angry': ['angry', 'mad', 'furious', 'rage'],
-        'joyful': ['happy', 'joy', 'glad', 'delighted'],
-        'peaceful': ['peace', 'calm', 'tranquil'],
-        'remorseful': ['sorry', 'regret', 'guilt'],
-        'reflective': ['think', 'wonder', 'consider']
+        'fearful': ['fear', 'scared', 'afraid', 'terrified', 'dread', 'dreadful', 'dreaded', 'dreadful', 'spooked'],
+        'angry': ['angry', 'mad', 'furious', 'rage', 'anger', 'upset', 'outraged', 'hate', 'bitter', 'enraged', 'hostile', 'offended', 'insulted', 'hurt', 'betrayed', 'disrespected'],
+        'joyful': ['happy', 'joy', 'glad', 'delighted', 'cheery'],
+        'peaceful': ['peace', 'calm', 'tranquil', 'normal', 'okay', 'fine', 'alright', 'well', 'rested', 'composed', 'stable'],
+        'remorseful': ['sorry', 'regret', 'guilt', 'regretful', 'mistake', 'fault', 'disappointed', 'failed', 'messed up', 'wish', 'apology', 'forgiveness', 'remorse', 'embarrassed', 'wrong', 'blame', 'responsible'],
+        'reflective': ['think', 'wonder', 'consider', 'ponder']
     }
     
     for emotion, words_list in words_dict.items():
