@@ -270,15 +270,13 @@
                 const data = await response.json();
                 const allVerses = [];
 
-                // Process each surah in the children array
-                if (data && Array.isArray(data.children)) {
-                    for (const surah of data.children) {
-                        if (surah && Array.isArray(surah.children)) {
-                            for (const verse of surah.children) {
-                                const verseEmotion = determineEmotion(verse.ayah_en, verse.value);
-                                if (verseEmotion === emotion) {
-                                    allVerses.push(verse);
-                                }
+                // Iterate through each surah
+                for (const surah of Object.values(data)) {
+                    if (Array.isArray(surah)) {
+                        for (const verse of surah) {
+                            const verseEmotion = determineEmotion(verse.ayah_en, verse.value);
+                            if (verseEmotion === emotion) {
+                                allVerses.push(verse);
                             }
                         }
                     }
@@ -300,7 +298,7 @@
                     verseDisplay.style.opacity = '1';
                 }, 300);
             } catch (error) {
-                console.error('Error displaying verse:', error);
+                console.error('Error fetching verse:', error);
                 document.querySelector('.verse-text').textContent = 'Please try another emotion...';
                 document.querySelector('.verse-reference').textContent = '';
             }
