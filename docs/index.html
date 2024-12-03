@@ -332,10 +332,10 @@
         const emotionKeywords = {
             joyful: ['happy', 'joy', 'delight', 'blessed', 'grateful', 'thankful'],
             peaceful: ['peace', 'calm', 'tranquil', 'serene'],
-            fearful: ['fear', 'scared', 'afraid', 'anxious', 'worried'],
-            angry: ['angry', 'mad', 'furious', 'rage', 'upset'],
-            remorseful: ['sorry', 'regret', 'guilt', 'ashamed'],
-            reflective: ['think', 'ponder', 'contemplate', 'wonder']
+            fearful: ['fear', 'scared', 'afraid', 'anxious', 'worried', 'torment', 'dread', 'terror', 'frightful', 'awful', 'painful'],
+            angry: ['angry', 'mad', 'furious', 'rage', 'upset', 'condemn', 'destroy', 'vengeance', 'curse', 'disgrace', 'humiliate'],
+            remorseful: ['sorry', 'regret', 'guilt', 'ashamed', 'mistake', 'fault', 'disappointed', 'forgive', 'repent', 'sorry', 'turn in repentance', 'ask pardon'],
+            reflective: ['think', 'ponder', 'contemplate', 'wonder', 'understand', 'believe', 'suppose', 'guess']
         };
 
         const sentimentMap = {
@@ -392,8 +392,12 @@
                             for (const verse of surah.children) {
                                 if (verse && verse.ayah_en && verse.value !== undefined) {
                                     const verseEmotion = determineEmotion(verse.ayah_en, verse.value);
-                                    // Use the mapped emotion to find verses
-                                    if (verseEmotion === mappedEmotion) {
+                                    // First try to find exact emotion match
+                                    if (verseEmotion === emotion) {
+                                        allVerses.push(verse);
+                                    } 
+                                    // If no exact matches found, then try mapped emotion
+                                    else if (verseEmotion === mappedEmotion) {
                                         allVerses.push(verse);
                                     }
                                 }
@@ -438,37 +442,180 @@
                 'understand', 'wisdom', 'sign', 'lesson']
         };
 
+        const primaryEmotionalWords = {
+            joyful: ['paradise', 'blessed', 'mercy', 'rejoice'],
+            peaceful: ['peace', 'tranquil', 'secure'],
+            fearful: ['fear', 'punishment', 'doom'],
+            angry: ['wrath', 'vengeance', 'fury'],
+            remorseful: ['forgive', 'repent', 'regret'],
+            reflective: ['ponder', 'reflect', 'wisdom']
+        };
+
+        function containsEmotionalPhrase(text, emotion) {
+            const phrases = {
+                joyful: [
+                    'gardens of paradise',
+                    'eternal bliss',
+                    'great reward',
+                    'glad tidings',
+                    'everlasting happiness',
+                    'gardens beneath which rivers flow',
+                    'successful are the believers',
+                    'good news',
+                    'blessed are those',
+                    'mercy of allah',
+                    'allah is pleased',
+                    'greatest achievement',
+                    'supreme success',
+                    'rejoice in the bounty',
+                    'abundant reward'
+                ],
+                peaceful: [
+                    'peace be upon',
+                    'heart at rest',
+                    'divine tranquility',
+                    'soul at peace',
+                    'hearts find rest',
+                    'tranquility descends',
+                    'secure from fear',
+                    'safe and secure',
+                    'peace and security',
+                    'hearts are assured',
+                    'contentment of heart',
+                    'inner peace',
+                    'gentle words',
+                    'ease after hardship',
+                    'protected by allah'
+                ],
+                fearful: [
+                    'day of judgment',
+                    'divine punishment',
+                    'fear allah',
+                    'severe in punishment',
+                    'day of reckoning',
+                    'painful torment',
+                    'hellfire awaits',
+                    'fear your lord',
+                    'day of resurrection',
+                    'terrible in punishment',
+                    'day they will meet him',
+                    'punishment of the grave',
+                    'fear of allah',
+                    'day of account',
+                    'severe chastisement'
+                ],
+                angry: [
+                    'divine wrath',
+                    'severe punishment',
+                    'curse of allah',
+                    'anger of allah',
+                    'painful doom',
+                    'evil indeed',
+                    'destruction awaits',
+                    'those who deny',
+                    'those who reject',
+                    'punishment of hell',
+                    'wrongdoers will know',
+                    'day of regret',
+                    'those who transgress',
+                    'those who disbelieve',
+                    'severe in revenge'
+                ],
+                remorseful: [
+                    'seek forgiveness',
+                    'turn in repentance',
+                    'ask pardon',
+                    'forgive our sins',
+                    'return to allah',
+                    'accept our repentance',
+                    'forgive me',
+                    'turn to your lord',
+                    'seeking forgiveness',
+                    'repent to him',
+                    'forgiver of sin',
+                    'acceptor of repentance',
+                    'oft-returning',
+                    'most merciful',
+                    'pardoning lord'
+                ],
+                reflective: [
+                    'do they not',
+                    'reflect upon',
+                    'signs for those who',
+                    'will they not then',
+                    'do they not understand',
+                    'have they not seen',
+                    'think about',
+                    'ponder over',
+                    'those who remember',
+                    'people who reason',
+                    'those of understanding',
+                    'signs for people',
+                    'lessons to learn',
+                    'contemplate the creation',
+                    'those who comprehend'
+                ]
+            };
+
+            return phrases[emotion]?.some(phrase => text.toLowerCase().includes(phrase)) || false;
+        }
+
         function determineEmotion(text, value) {
             if (!text || typeof text !== 'string') return 'reflective';
             text = text.toLowerCase();
 
-            // Calculate emotion scores based on word matches
+            // Calculate weighted emotion scores
             const emotionScores = {};
             for (const [emotion, words] of Object.entries(emotionalWords)) {
+                let score = 0;
                 const matches = words.filter(word => text.includes(word));
-                const score = matches.length / words.length; // Normalize by total words for that emotion
-                emotionScores[emotion] = score;
+                
+                matches.forEach(word => {
+                    // Reduced position weight impact
+                    const position = text.indexOf(word);
+                    const positionWeight = position < text.length / 3 ? 1.1 : 
+                                         position > (2 * text.length) / 3 ? 1.05 : 1;
+                    
+                    // Increased significance weight for primary words
+                    const significanceWeight = primaryEmotionalWords[emotion]?.includes(word) ? 2.0 : 1;
+                    
+                    score += positionWeight * significanceWeight;
+                });
+                
+                emotionScores[emotion] = score / words.length; // Normalize
             }
 
-            // Find highest scoring emotion
+            // Adjusted value weights to be more lenient
+            const valueWeights = {
+                joyful: value >= 20 ? 1.3 : 1,
+                peaceful: (value >= 10) ? 1.3 : 1,
+                reflective: (value >= 5) ? 1.2 : 1,
+                remorseful: (value <= 15) ? 1.2 : 1,
+                angry: (value <= 10) ? 1.3 : 1,
+                fearful: (value <= 15) ? 1.3 : 1
+            };
+
+            // Apply value weights
+            Object.keys(emotionScores).forEach(emotion => {
+                emotionScores[emotion] *= valueWeights[emotion] || 1;
+            });
+
+            // Reduced confidence threshold to 30%
             const maxScore = Math.max(...Object.values(emotionScores));
             const dominantEmotion = Object.entries(emotionScores)
                 .find(([_, score]) => score === maxScore)?.[0];
 
-            // Only classify if we have high confidence (>30% of emotional words match)
             if (maxScore > 0.3) {
                 return dominantEmotion;
             }
 
-            // More strict value-based determination with confidence thresholds
-            if (value >= 25 && text.includes('paradise', 'reward', 'blessed')) return 'joyful';
-            if (value >= 20 && text.includes('peace', 'tranquil', 'calm')) return 'peaceful';
-            if (value >= 15 && text.includes('reflect', 'ponder', 'think')) return 'reflective';
-            if (value >= 10 && text.includes('forgive', 'repent', 'sorry')) return 'remorseful';
-            if (value >= 5 && text.includes('wrath', 'curse', 'anger')) return 'angry';
-            if (value <= 5 && text.includes('fear', 'punishment', 'warning')) return 'fearful';
+            // More lenient contextual analysis
+            if (maxScore > 0.2) {
+                if (containsEmotionalPhrase(text, dominantEmotion)) {
+                    return dominantEmotion;
+                }
+            }
 
-            // Default to reflective if no strong emotion is detected
             return 'reflective';
         }
 
