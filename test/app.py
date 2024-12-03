@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
 import pandas as pd
 import json
 import numpy as np
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import nltk
+from textblob import TextBlob
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 
@@ -27,19 +28,16 @@ def load_quran_data():
                     'ayah_no': item['ayah_no_surah']
                 })
     
-    # Start the recursive extraction
     extract_verses(data)
     return pd.DataFrame(verses)
 
 def process_verses(df):
     analyzer = SentimentIntensityAnalyzer()
     
-    # Get sentiment scores
     sentiments = df['text'].apply(lambda x: analyzer.polarity_scores(x))
     df['compound'] = sentiments.apply(lambda x: x['compound'])
     df['subjectivity'] = sentiments.apply(lambda x: (x['pos'] + x['neg']) / (x['pos'] + x['neg'] + x['neu'] + 0.0001))
     
-    # Classify emotions
     def get_emotion_category(row):
         compound = row['compound']
         subjectivity = row['subjectivity']
@@ -56,7 +54,6 @@ def process_verses(df):
     
     return df
 
-# Load and process data
 df = load_quran_data()
 df = process_verses(df)
 
@@ -78,6 +75,26 @@ def get_verse(emotion):
         'surah_name': verse['surah_name'],
         'ayah_no': int(verse['ayah_no']),
         'confidence': float(verse['confidence'])
+    })
+
+@app.route('/api/analyze-emotion', methods=['POST'])
+def analyze_emotion():
+    text = request.json.get('text', '')
+    
+    blob = TextBlob(text)
+    polarity = blob.sentiment.polarity
+    subjectivity = blob.sentiment.subjectivity
+    
+    if polarity > 0.3:
+        emotion = 'joyful' if subjectivity > 0.5 else 'peaceful'
+    elif polarity < -0.3:
+        emotion = 'angry' if subjectivity > 0.5 else 'fearful'
+    else:
+        emotion = 'remorseful' if subjectivity > 0.5 else 'reflective'
+    
+    return jsonify({
+        'emotion': emotion,
+        'confidence': abs(polarity)
     })
 
 if __name__ == '__main__':

@@ -4,68 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quranic Emotional Verses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2C3E50;
+            --secondary-color: #34495E;
+            --accent-color: #E67E22;
+            --background-color: #ECF0F3;
+            --card-background: #FFFFFF;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --transition-speed: 0.4s;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(44, 62, 80, 0.02) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(230, 126, 34, 0.03) 0%, transparent 20%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 1200px;
+            background-color: var(--card-background);
+            border-radius: 30px;
+            box-shadow: 
+                20px 20px 60px var(--shadow-color),
+                -20px -20px 60px rgba(255, 255, 255, 0.8);
+            padding: 3.5rem;
+            margin: 2rem;
+            transition: all var(--transition-speed);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #E67E22, #F1C40F);
+            opacity: 0.8;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.75rem;
+            font-weight: 600;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+            opacity: 0.7;
         }
 
         .button-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.75rem;
+            margin: 3rem auto;
+            max-width: 800px;
+            justify-content: center;
+            align-items: center;
         }
 
         button {
-            padding: 15px 25px;
+            padding: 1.3rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0.2),
+                rgba(255, 255, 255, 0)
+            );
+            transition: all 0.6s;
+        }
+
+        button:hover::before {
+            left: 100%;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
-        .joyful { background-color: #FFD700; }
-        .peaceful { background-color: #98FB98; }
-        .fearful { background-color: #FFA07A; }
-        .angry { background-color: #FF6B6B; }
-        .remorseful { background-color: #87CEEB; }
-        .reflective { background-color: #DDA0DD; }
+        .joyful { background: linear-gradient(135deg, #F1C40F, #F39C12); }
+        .peaceful { background: linear-gradient(135deg, #27AE60, #2ECC71); }
+        .fearful { background: linear-gradient(135deg, #E74C3C, #C0392B); }
+        .angry { background: linear-gradient(135deg, #E74C3C, #C0392B); }
+        .remorseful { background: linear-gradient(135deg, #3498DB, #2980B9); }
+        .reflective { background: linear-gradient(135deg, #9B59B6, #8E44AD); }
+
+        .input-container {
+            margin: 2.5rem 0;
+            display: flex;
+            gap: 1.25rem;
+            width: 100%;
+        }
+
+        .emotion-input {
+            flex: 1;
+            padding: 1.2rem 1.75rem;
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all var(--transition-speed);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .emotion-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 20px rgba(230, 126, 34, 0.1);
+        }
+
+        .analyze-button {
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 16px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
 
         #verse-display {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #f8f9fa;
-            min-height: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-top: 3rem;
+            box-shadow: 
+                0 15px 35px var(--shadow-color),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            transition: all var(--transition-speed);
         }
 
         .verse-text {
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 10px;
+            font-size: 1.35rem;
+            line-height: 1.9;
+            color: var(--primary-color);
+            margin-bottom: 1.75rem;
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .verse-reference {
             font-style: italic;
-            color: #666;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2.5rem;
+                margin: 1rem;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .button-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+            }
+
+            .verse-text {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -73,12 +220,21 @@
     <div class="container">
         <h1>Quranic Verses by Emotion</h1>
         <div class="button-container">
-            <button class="joyful" onclick="getVerse('joyful')">Joyful</button>
+            <button class="joyful" onclick="getVerse('joyful', this)">Joyful</button>
             <button class="peaceful" onclick="getVerse('peaceful')">Peaceful</button>
             <button class="fearful" onclick="getVerse('fearful')">Fearful</button>
             <button class="angry" onclick="getVerse('angry')">Angry</button>
             <button class="remorseful" onclick="getVerse('remorseful')">Remorseful</button>
             <button class="reflective" onclick="getVerse('reflective')">Reflective</button>
+        </div>
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="emotion-input" 
+                placeholder="Describe how you're feeling..."
+                class="emotion-input"
+            >
+            <button onclick="analyzeEmotion()" class="analyze-button">Analyze</button>
         </div>
         <div id="verse-display">
             <p class="verse-text">Select an emotion to receive a verse...</p>
@@ -87,16 +243,57 @@
     </div>
 
     <script>
-        async function getVerse(emotion) {
+        async function getVerse(emotion, buttonElement = null) {
             try {
+                if (buttonElement) {
+                    buttonElement.style.transform = 'scale(0.95)';
+                    setTimeout(() => buttonElement.style.transform = 'translateY(-5px)', 200);
+                }
+
                 const response = await fetch(`/api/verse/${emotion}`);
                 const verse = await response.json();
                 
-                document.querySelector('.verse-text').textContent = verse.text;
-                document.querySelector('.verse-reference').textContent = 
-                    `${verse.surah_name}, Verse ${verse.ayah_no}`;
+                const verseDisplay = document.getElementById('verse-display');
+                verseDisplay.style.opacity = '0';
+                
+                setTimeout(() => {
+                    document.querySelector('.verse-text').textContent = verse.text;
+                    document.querySelector('.verse-reference').textContent = 
+                        `${verse.surah_name}, Verse ${verse.ayah_no}`;
+                    verseDisplay.style.opacity = '1';
+                }, 300);
             } catch (error) {
                 console.error('Error fetching verse:', error);
+            }
+        }
+
+        async function analyzeEmotion() {
+            try {
+                const input = document.getElementById('emotion-input').value;
+                if (!input.trim()) return;
+
+                const response = await fetch('/api/analyze-emotion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: input })
+                });
+
+                const result = await response.json();
+                if (result.emotion) {
+                    await getVerse(result.emotion);
+                    // Highlight the corresponding emotion button
+                    const buttons = document.querySelectorAll('.button-container button');
+                    buttons.forEach(btn => {
+                        if (btn.classList.contains(result.emotion)) {
+                            btn.style.transform = 'scale(1.05)';
+                            setTimeout(() => btn.style.transform = 'translateY(-5px)', 200);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error analyzing emotion:', error);
             }
         }
     </script>
