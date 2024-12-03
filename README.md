@@ -4,6 +4,8 @@ An intelligent web application that provides relevant Quranic verses based on em
 
 🌐 **Live Site**: [https://ymorsi7.github.io/QuranicSentiment/](https://ymorsi7.github.io/QuranicSentiment/)
 
+**NOTE: This is NOT a ChatGPT wrapper 😂**
+
 ![QuranicSentiment Interface](docs/page.png)
 
 ## Features 🌟
