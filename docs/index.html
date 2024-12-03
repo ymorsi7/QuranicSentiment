@@ -234,6 +234,33 @@
             font-weight: 500;
             opacity: 0.9;
         }
+
+        .verse-context {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(44, 62, 80, 0.05);
+            border-radius: 12px;
+            line-height: 1.6;
+        }
+
+        .related-verses {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .analytics-container {
+            position: fixed;
+            right: 2rem;
+            top: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 300px;
+        }
     </style>
 </head>
 <body>
@@ -285,6 +312,23 @@
             "joyful": "reflective",  // When joyful, provide grounding verses
             "peaceful": "reflective" // When peaceful, provide wisdom verses
         };
+
+        const analyticsData = {
+            interactions: {},
+            emotionDistribution: {},
+            sentimentScores: []
+        };
+
+        function trackInteraction(emotion, source) {
+            if (!analyticsData.interactions[emotion]) {
+                analyticsData.interactions[emotion] = {
+                    buttonClicks: 0,
+                    textInputs: 0,
+                    versesShown: 0
+                };
+            }
+            analyticsData.interactions[emotion][source]++;
+        }
 
         async function getVerse(emotion, buttonElement = null) {
             try {
@@ -449,6 +493,68 @@
             
             verseDisplay.appendChild(verseText);
             verseDisplay.appendChild(verseReference);
+            
+            // Add context and explanation
+            const explanationText = document.createElement('p');
+            explanationText.className = 'verse-context';
+            explanationText.textContent = `This verse was chosen because it contains themes of ${mappedEmotion} 
+                that can help transform feelings of ${emotion} through Quranic wisdom.`;
+            
+            const relatedVerses = findRelatedVerses(verse, 3); // Show 3 related verses
+            const relatedVersesContainer = createRelatedVersesDisplay(relatedVerses);
+            
+            verseDisplay.appendChild(explanationText);
+            verseDisplay.appendChild(relatedVersesContainer);
+        }
+
+        function findRelatedVerses(currentVerse, count = 3) {
+            // Get verses from the same surah
+            const relatedVerses = [];
+            if (!currentVerse || !currentVerse.surah_name_en) return relatedVerses;
+
+            try {
+                // Get verses before and after the current verse
+                const currentVerseNumber = parseInt(currentVerse.ayah_no_surah);
+                for (let i = Math.max(1, currentVerseNumber - 1); i <= currentVerseNumber + 1; i++) {
+                    if (i !== currentVerseNumber) {
+                        relatedVerses.push({
+                            ayah_en: `Verse ${i} context will be loaded on demand`,
+                            surah_name_en: currentVerse.surah_name_en,
+                            ayah_no_surah: i
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error finding related verses:', error);
+            }
+
+            return relatedVerses.slice(0, count);
+        }
+
+        function createRelatedVersesDisplay(relatedVerses) {
+            const container = document.createElement('div');
+            container.className = 'related-verses';
+            
+            if (relatedVerses.length === 0) return container;
+
+            const heading = document.createElement('h3');
+            heading.textContent = 'Related Verses';
+            heading.style.fontSize = '1.1rem';
+            heading.style.marginBottom = '1rem';
+            heading.style.color = 'var(--secondary-color)';
+            container.appendChild(heading);
+
+            relatedVerses.forEach(verse => {
+                const verseElement = document.createElement('p');
+                verseElement.className = 'verse-reference';
+                verseElement.textContent = `${verse.surah_name_en}, Verse ${verse.ayah_no_surah}`;
+                verseElement.style.cursor = 'pointer';
+                verseElement.style.marginBottom = '0.5rem';
+                verseElement.onclick = () => getVerse(verse.emotion || 'reflective');
+                container.appendChild(verseElement);
+            });
+
+            return container;
         }
     </script>
 </body>
