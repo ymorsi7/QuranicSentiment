@@ -4,6 +4,8 @@ An intelligent web application that provides relevant Quranic verses based on em
 
 🌐 **Live Site**: [https://ymorsi7.github.io/QuranicSentiment/](https://ymorsi7.github.io/QuranicSentiment/)
 
+![QuranicSentiment Interface](docs/page.png)
+
 ## Features 🌟
 
 - **Emotion Detection** 🎭
@@ -99,6 +101,7 @@ http://localhost:5000
 QuranicSentiment/
 ├── docs/
 │   ├── icon.png
+│   ├── page.png
 │   └── index.html
 ├── app.py
 ├── main.py
