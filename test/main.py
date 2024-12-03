@@ -29,7 +29,7 @@ def load_quran_data(file_path='quran.json'):
     extract_verses(data)
     return pd.DataFrame(verses)
 
-def analyze_sentiment_enhanced(text):
+def analyze_sentiment_enhanced(text, context='quranic'):
     vader = SentimentIntensityAnalyzer()
     vader_scores = vader.polarity_scores(text)
     blob = TextBlob(text)
@@ -150,9 +150,51 @@ def analyze_sentiment_enhanced(text):
         ]
     }
     
+    conversational_emotional_words = {
+        'joyful': [
+            'happy', 'excited', 'delighted', 'glad', 'cheerful', 'thrilled',
+            'wonderful', 'fantastic', 'amazing', 'great', 'love', 'enjoy',
+            'fun', 'pleased', 'satisfied', 'proud', 'blessed', 'grateful',
+            'optimistic', 'positive', 'enthusiastic', 'energetic', 'good'
+        ],
+        'peaceful': [
+            'calm', 'relaxed', 'peaceful', 'quiet', 'tranquil', 'serene',
+            'content', 'comfortable', 'safe', 'secure', 'balanced', 'steady',
+            'gentle', 'easy', 'settled', 'harmonious', 'okay', 'fine',
+            'alright', 'well', 'rested', 'composed', 'stable'
+        ],
+        'fearful': [
+            'scared', 'afraid', 'worried', 'anxious', 'nervous', 'terrified',
+            'frightened', 'uneasy', 'stressed', 'panicked', 'overwhelmed',
+            'helpless', 'insecure', 'concerned', 'uncertain', 'confused',
+            'doubtful', 'vulnerable', 'threatened', 'paranoid'
+        ],
+        'angry': [
+            'angry', 'mad', 'furious', 'annoyed', 'irritated', 'frustrated',
+            'upset', 'outraged', 'hate', 'bitter', 'enraged', 'hostile',
+            'offended', 'insulted', 'hurt', 'betrayed', 'disrespected',
+            'unfair', 'wrong', 'terrible'
+        ],
+        'remorseful': [
+            'sorry', 'regret', 'guilty', 'ashamed', 'apologetic', 'bad',
+            'mistake', 'fault', 'disappointed', 'failed', 'messed up',
+            'wish', 'apology', 'forgiveness', 'remorse', 'embarrassed',
+            'wrong', 'blame', 'responsible'
+        ],
+        'reflective': [
+            'think', 'wonder', 'consider', 'realize', 'understand', 'feel',
+            'sense', 'believe', 'suppose', 'guess', 'maybe', 'perhaps',
+            'question', 'searching', 'trying', 'processing', 'dealing',
+            'coping', 'learning', 'growing'
+        ]
+    }
+    
+    # Choose appropriate dictionary based on context
+    words_dict = emotional_words if context == 'quranic' else conversational_emotional_words
+    
     emotional_scores = {}
     lower_text = text.lower()
-    for emotion, words_list in emotional_words.items():
+    for emotion, words_list in words_dict.items():
         exact_matches = sum(2 for word in words_list if f" {word} " in f" {lower_text} ")
         partial_matches = sum(1 for word in words_list if word in lower_text)
         total_score = (exact_matches + partial_matches) / (len(words_list) * 2)
