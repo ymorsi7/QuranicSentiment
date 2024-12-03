@@ -307,7 +307,7 @@ df = process_verses(df)
 
 @app.route('/')
 def home():
-    return send_from_directory('static', 'index.html')
+    return send_from_directory('docs', 'index.html')
 
 @app.route('/api/verse/<emotion>')
 def get_verse(emotion):
