@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quranic Emotional Verses</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="icon.png">
     <style>
         :root {
             --primary-color: #2C3E50;
@@ -250,16 +251,19 @@
                     setTimeout(() => buttonElement.style.transform = 'translateY(-5px)', 200);
                 }
 
-                const response = await fetch(`/api/verse/${emotion}`);
-                const verse = await response.json();
+                const response = await fetch('./quran.json');
+                const verses = await response.json();
+                
+                const matchingVerses = verses.filter(verse => verse.emotion === emotion);
+                const verse = matchingVerses[Math.floor(Math.random() * matchingVerses.length)];
                 
                 const verseDisplay = document.getElementById('verse-display');
                 verseDisplay.style.opacity = '0';
                 
                 setTimeout(() => {
-                    document.querySelector('.verse-text').textContent = verse.text;
+                    document.querySelector('.verse-text').textContent = verse.ayah_en;
                     document.querySelector('.verse-reference').textContent = 
-                        `${verse.surah_name}, Verse ${verse.ayah_no}`;
+                        `${verse.surah_name_en}, Verse ${verse.ayah_no_surah}`;
                     verseDisplay.style.opacity = '1';
                 }, 300);
             } catch (error) {
