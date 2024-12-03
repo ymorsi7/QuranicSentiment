@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quranic Emotional Verses</title>
+    <title>QuranicSentiment</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="./icon.png">
     <style>
@@ -215,11 +215,34 @@
                 font-size: 1.2rem;
             }
         }
+
+        .description {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: -1rem auto 2rem;
+            max-width: 600px;
+            opacity: 0.9;
+        }
+
+        .response-text {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Quranic Verses by Emotion</h1>
+        <p class="description">
+            Share how you're feeling through the buttons below or describe your emotions in the text box. 
+            We'll provide you with a Quranic verse that offers guidance, comfort, or reflection based on your emotional state.
+        </p>
         <div class="button-container">
             <button class="joyful" onclick="getVerse('joyful', this)">Joyful</button>
             <button class="peaceful" onclick="getVerse('peaceful')">Peaceful</button>
@@ -254,6 +277,15 @@
             reflective: ['think', 'ponder', 'contemplate', 'wonder']
         };
 
+        const sentimentMap = {
+            "angry": "peaceful",     // When angry, provide calming verses
+            "fearful": "peaceful",   // When afraid, provide reassuring verses
+            "remorseful": "joyful",  // When regretful, provide hopeful verses
+            "reflective": "joyful",  // When contemplative, provide uplifting verses
+            "joyful": "reflective",  // When joyful, provide grounding verses
+            "peaceful": "reflective" // When peaceful, provide wisdom verses
+        };
+
         async function getVerse(emotion, buttonElement = null) {
             try {
                 if (buttonElement) {
@@ -270,6 +302,9 @@
                 const data = await response.json();
                 const allVerses = [];
 
+                // Get the mapped emotion from our sentiment map
+                const mappedEmotion = sentimentMap[emotion] || emotion;
+
                 // Process each surah in the children array
                 if (data && Array.isArray(data.children)) {
                     for (const surah of data.children) {
@@ -277,7 +312,8 @@
                             for (const verse of surah.children) {
                                 if (verse && verse.ayah_en && verse.value !== undefined) {
                                     const verseEmotion = determineEmotion(verse.ayah_en, verse.value);
-                                    if (verseEmotion === emotion) {
+                                    // Use the mapped emotion to find verses
+                                    if (verseEmotion === mappedEmotion) {
                                         allVerses.push(verse);
                                     }
                                 }
@@ -296,9 +332,8 @@
                 verseDisplay.style.opacity = '0';
                 
                 setTimeout(() => {
-                    document.querySelector('.verse-text').textContent = verse.ayah_en;
-                    document.querySelector('.verse-reference').textContent = 
-                        `${verse.surah_name_en}, Verse ${verse.ayah_no_surah}`;
+                    // Use the updateVerseDisplay function instead of directly updating the content
+                    updateVerseDisplay(emotion, mappedEmotion, verse);
                     verseDisplay.style.opacity = '1';
                 }, 300);
             } catch (error) {
@@ -393,6 +428,27 @@
                 }
                 getVerse('reflective', reflectiveButton);
             }
+        }
+
+        function updateVerseDisplay(emotion, mappedEmotion, verse) {
+            const verseDisplay = document.getElementById('verse-display');
+            const responseText = document.createElement('p');
+            responseText.className = 'response-text';
+            responseText.textContent = `It seems you're feeling ${emotion}, so here is a verse containing ${mappedEmotion} wisdom:`;
+            
+            verseDisplay.innerHTML = '';
+            verseDisplay.appendChild(responseText);
+            
+            const verseText = document.createElement('p');
+            verseText.className = 'verse-text';
+            verseText.textContent = verse.ayah_en;
+            
+            const verseReference = document.createElement('p');
+            verseReference.className = 'verse-reference';
+            verseReference.textContent = `${verse.surah_name_en}, Verse ${verse.ayah_no_surah}`;
+            
+            verseDisplay.appendChild(verseText);
+            verseDisplay.appendChild(verseReference);
         }
     </script>
 </body>
