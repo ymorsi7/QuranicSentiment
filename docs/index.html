@@ -353,7 +353,6 @@
     </footer>
 
     <script>
-        // First, let's define our emotions and their keywords
         const emotionKeywords = {
             joyful: ['happy', 'joy', 'delight', 'blessed', 'grateful', 'thankful'],
             peaceful: ['peace', 'calm', 'tranquil', 'serene'],
@@ -403,25 +402,20 @@
                 }
 
                 const data = await response.json();
-                // Store in localStorage for related verses
                 localStorage.setItem('quranData', JSON.stringify(data));
                 const allVerses = [];
 
-                // Get the mapped emotion from our sentiment map
                 const mappedEmotion = sentimentMap[emotion] || emotion;
 
-                // Process each surah in the children array
                 if (data && Array.isArray(data.children)) {
                     for (const surah of data.children) {
                         if (surah && Array.isArray(surah.children)) {
                             for (const verse of surah.children) {
                                 if (verse && verse.ayah_en && verse.value !== undefined) {
                                     const verseEmotion = determineEmotion(verse.ayah_en, verse.value);
-                                    // First try to find exact emotion match
                                     if (verseEmotion === emotion) {
                                         allVerses.push(verse);
                                     } 
-                                    // If no exact matches found, then try mapped emotion
                                     else if (verseEmotion === mappedEmotion) {
                                         allVerses.push(verse);
                                     }
@@ -441,7 +435,6 @@
                 verseDisplay.style.opacity = '0';
 
                 setTimeout(() => {
-                    // Use the updateVerseDisplay function instead of directly updating the content
                     updateVerseDisplay(emotion, mappedEmotion, verse);
                     verseDisplay.style.opacity = '1';
                 }, 300);
@@ -589,28 +582,24 @@
             if (!text || typeof text !== 'string') return 'reflective';
             text = text.toLowerCase();
 
-            // Calculate weighted emotion scores
             const emotionScores = {};
             for (const [emotion, words] of Object.entries(emotionalWords)) {
                 let score = 0;
                 const matches = words.filter(word => text.includes(word));
                 
                 matches.forEach(word => {
-                    // Reduced position weight impact
                     const position = text.indexOf(word);
                     const positionWeight = position < text.length / 3 ? 1.1 : 
                                          position > (2 * text.length) / 3 ? 1.05 : 1;
                     
-                    // Increased significance weight for primary words
                     const significanceWeight = primaryEmotionalWords[emotion]?.includes(word) ? 2.0 : 1;
                     
                     score += positionWeight * significanceWeight;
                 });
                 
-                emotionScores[emotion] = score / words.length; // Normalize
+                emotionScores[emotion] = score / words.length;
             }
 
-            // Adjusted value weights to be more lenient
             const valueWeights = {
                 joyful: value >= 20 ? 1.3 : 1,
                 peaceful: (value >= 10) ? 1.3 : 1,
@@ -620,12 +609,10 @@
                 fearful: (value <= 15) ? 1.3 : 1
             };
 
-            // Apply value weights
             Object.keys(emotionScores).forEach(emotion => {
                 emotionScores[emotion] *= valueWeights[emotion] || 1;
             });
 
-            // Reduced confidence threshold to 30%
             const maxScore = Math.max(...Object.values(emotionScores));
             const dominantEmotion = Object.entries(emotionScores)
                 .find(([_, score]) => score === maxScore)?.[0];
@@ -634,7 +621,6 @@
                 return dominantEmotion;
             }
 
-            // More lenient contextual analysis
             if (maxScore > 0.2) {
                 if (containsEmotionalPhrase(text, dominantEmotion)) {
                     return dominantEmotion;
@@ -645,7 +631,6 @@
         }
 
         function analyzeEmotion() {
-            // For user input analysis
             const conversationalWords = {
                 joyful: ['happy', 'excited', 'delighted', 'glad', 'cheerful', 'thrilled',
                     'wonderful', 'fantastic', 'amazing', 'great', 'love', 'enjoy'],
@@ -715,7 +700,6 @@
             verseDisplay.appendChild(verseText);
             verseDisplay.appendChild(verseReference);
 
-            // Add context and explanation
             const explanationText = document.createElement('p');
             explanationText.className = 'verse-context';
             explanationText.textContent = `This verse was chosen because it contains themes of ${mappedEmotion} 
@@ -743,7 +727,6 @@
 
             Object.keys(wordFreq).forEach(word => {
                 const tf = wordFreq[word] / totalWords;
-                // Use emotional words from our existing dictionary
                 const idf = Math.log(1 + 1 / (Object.values(emotionalWords).flat().includes(word) ? 1 : 0.1));
                 tfidf[word] = tf * idf;
             });
@@ -790,7 +773,7 @@
                                         getVerseTFIDF(verse.ayah_en)
                                     );
 
-                                    if (similarity > 0.7) { // Only include verses with >75% similarity
+                                    if (similarity > 0.7) { // Only including verses with >75% similarity
                                         allVerses.push({
                                             ...verse,
                                             similarity: similarity
@@ -815,8 +798,7 @@
             const container = document.createElement('div');
             container.className = 'related-verses';
 
-            // Only create the container if there are highly similar verses
-            if (relatedVerses.length === 0) return document.createElement('div'); // Return empty div if no similar verses
+            if (relatedVerses.length === 0) return document.createElement('div');
 
             const heading = document.createElement('h3');
             heading.textContent = 'Highly Similar Verses';
