@@ -309,38 +309,65 @@
         }
 
         function determineEmotion(text, value) {
+            // For Quranic verses analysis
+            const emotionalWords = {
+                joyful: ['paradise', 'reward', 'blessed', 'mercy', 'glad', 'rejoice', 'happy', 'delight', 
+                         'pleasure', 'bliss', 'joy', 'garden', 'success', 'triumph', 'victory'],
+                peaceful: ['peace', 'tranquil', 'calm', 'gentle', 'harmony', 'serene', 'quiet', 'still',
+                          'rest', 'ease', 'comfort', 'secure', 'safe', 'protect', 'guide'],
+                fearful: ['fear', 'punishment', 'warning', 'terrible', 'severe', 'doom', 'torment',
+                         'horror', 'dread', 'terror', 'frightful', 'awful', 'painful'],
+                angry: ['wrath', 'curse', 'condemn', 'destroy', 'vengeance', 'fury', 'rage',
+                       'anger', 'punishment', 'disgrace', 'humiliate'],
+                remorseful: ['forgive', 'repent', 'sorry', 'regret', 'mercy', 'pardon', 'forgiveness',
+                            'guilt', 'shame', 'wrong', 'sin', 'mistake'],
+                reflective: ['ponder', 'think', 'reflect', 'contemplate', 'consider', 'remember',
+                            'understand', 'wisdom', 'sign', 'lesson']
+            };
+
             if (!text || typeof text !== 'string') return 'reflective';
-            
             text = text.toLowerCase();
-            value = Number(value) || 0;
-            
-            // Value-based determination first
+
+            // Check emotional words first
+            for (const [emotion, words] of Object.entries(emotionalWords)) {
+                if (words.some(word => text.includes(word))) {
+                    return emotion;
+                }
+            }
+
+            // Fallback to value-based determination
             if (value >= 25) return 'joyful';
             if (value >= 20) return 'peaceful';
             if (value >= 15) return 'reflective';
             if (value >= 10) return 'remorseful';
             if (value >= 5) return 'angry';
-            if (value < 5) return 'fearful';
-            
-            // Text-based determination as backup
-            if (text.includes('paradise') || text.includes('reward') || text.includes('blessed')) return 'joyful';
-            if (text.includes('peace') || text.includes('mercy')) return 'peaceful';
-            if (text.includes('fear') || text.includes('scared') || text.includes('afraid')) return 'fearful';
-            if (text.includes('anger') || text.includes('mad') || text.includes('furious') || text.includes('rage')) return 'angry';
-            if (text.includes('regret') || text.includes('sorry') || text.includes('guilt') || text.includes('ashamed')) return 'remorseful';
-            if (text.includes('think') || text.includes('ponder') || text.includes('contemplate') || text.includes('wonder')) return 'reflective';
-            
-            return 'reflective'; // default emotion
+            return 'fearful';
         }
 
         function analyzeEmotion() {
+            // For user input analysis
+            const conversationalWords = {
+                joyful: ['happy', 'excited', 'delighted', 'glad', 'cheerful', 'thrilled',
+                         'wonderful', 'fantastic', 'amazing', 'great', 'love', 'enjoy'],
+                peaceful: ['calm', 'relaxed', 'peaceful', 'quiet', 'tranquil', 'serene',
+                          'content', 'comfortable', 'safe', 'secure', 'balanced'],
+                fearful: ['scared', 'afraid', 'worried', 'anxious', 'nervous', 'terrified',
+                         'frightened', 'uneasy', 'stressed', 'panicked'],
+                angry: ['angry', 'mad', 'furious', 'annoyed', 'irritated', 'frustrated',
+                       'upset', 'outraged', 'hate', 'bitter'],
+                remorseful: ['sorry', 'regret', 'guilty', 'ashamed', 'apologetic', 'bad',
+                            'mistake', 'fault', 'disappointed'],
+                reflective: ['think', 'wonder', 'consider', 'realize', 'understand', 'feel',
+                            'sense', 'believe', 'suppose', 'guess']
+            };
+
             const input = document.getElementById('emotion-input').value.toLowerCase();
             if (!input.trim()) return;
 
             let matchedEmotion = null;
             let highestScore = 0;
 
-            for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+            for (const [emotion, keywords] of Object.entries(conversationalWords)) {
                 const score = keywords.reduce((count, keyword) => {
                     return count + (input.includes(keyword) ? 1 : 0);
                 }, 0);
@@ -352,7 +379,6 @@
             }
 
             if (matchedEmotion) {
-                // Find the corresponding button and animate it
                 const matchedButton = document.querySelector(`.button-container .${matchedEmotion}`);
                 if (matchedButton) {
                     matchedButton.style.transform = 'scale(0.95)';
@@ -360,7 +386,6 @@
                 }
                 getVerse(matchedEmotion, matchedButton);
             } else {
-                // Default to reflective if no emotion is matched
                 const reflectiveButton = document.querySelector('.button-container .reflective');
                 if (reflectiveButton) {
                     reflectiveButton.style.transform = 'scale(0.95)';
