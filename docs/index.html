@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +21,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: var(--background-color);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(44, 62, 80, 0.02) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(230, 126, 34, 0.03) 0%, transparent 20%);
             margin: 0;
@@ -36,7 +37,7 @@
             max-width: 1200px;
             background-color: var(--card-background);
             border-radius: 30px;
-            box-shadow: 
+            box-shadow:
                 20px 20px 60px var(--shadow-color),
                 -20px -20px 60px rgba(255, 255, 255, 0.8);
             padding: 3.5rem;
@@ -109,12 +110,10 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0),
-                rgba(255, 255, 255, 0.2),
-                rgba(255, 255, 255, 0)
-            );
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0),
+                    rgba(255, 255, 255, 0.2),
+                    rgba(255, 255, 255, 0));
             transition: all 0.6s;
         }
 
@@ -127,12 +126,29 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
-        .joyful { background: linear-gradient(135deg, #F1C40F, #F39C12); }
-        .peaceful { background: linear-gradient(135deg, #27AE60, #2ECC71); }
-        .fearful { background: linear-gradient(135deg, #E74C3C, #C0392B); }
-        .angry { background: linear-gradient(135deg, #E74C3C, #C0392B); }
-        .remorseful { background: linear-gradient(135deg, #3498DB, #2980B9); }
-        .reflective { background: linear-gradient(135deg, #9B59B6, #8E44AD); }
+        .joyful {
+            background: linear-gradient(135deg, #F1C40F, #F39C12);
+        }
+
+        .peaceful {
+            background: linear-gradient(135deg, #27AE60, #2ECC71);
+        }
+
+        .fearful {
+            background: linear-gradient(135deg, #E74C3C, #C0392B);
+        }
+
+        .angry {
+            background: linear-gradient(135deg, #E74C3C, #C0392B);
+        }
+
+        .remorseful {
+            background: linear-gradient(135deg, #3498DB, #2980B9);
+        }
+
+        .reflective {
+            background: linear-gradient(135deg, #9B59B6, #8E44AD);
+        }
 
         .input-container {
             margin: 2.5rem 0;
@@ -173,7 +189,7 @@
             border-radius: 24px;
             padding: 3rem;
             margin-top: 3rem;
-            box-shadow: 
+            box-shadow:
                 0 15px 35px var(--shadow-color),
                 inset 0 0 0 1px rgba(255, 255, 255, 0.1);
             transition: all var(--transition-speed);
@@ -248,7 +264,7 @@
         .related-verses {
             margin-top: 2rem;
             padding-top: 1.5rem;
-            border-top: 1px solid rgba(0,0,0,0.1);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .analytics-container {
@@ -258,17 +274,40 @@
             background: white;
             padding: 1rem;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             max-width: 300px;
+        }
+
+        .related-verse-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .related-verse-item:hover {
+            background-color: rgba(44, 62, 80, 0.05);
+        }
+
+        .similarity-score {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            opacity: 0.8;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Quranic Verses by Emotion</h1>
         <p class="description">
-            Share how you're feeling through the buttons below or describe your emotions in the text box. 
-            We'll provide you with a Quranic verse that offers guidance, comfort, or reflection based on your emotional state.
+            Share how you're feeling through the buttons below or describe your emotions in the text box.
+            We'll provide you with a Quranic verse that offers guidance, comfort, or reflection based on your emotional
+            state.
         </p>
         <div class="button-container">
             <button class="joyful" onclick="getVerse('joyful', this)">Joyful</button>
@@ -279,12 +318,7 @@
             <button class="reflective" onclick="getVerse('reflective')">Reflective</button>
         </div>
         <div class="input-container">
-            <input 
-                type="text" 
-                id="emotion-input" 
-                placeholder="Describe how you're feeling..."
-                class="emotion-input"
-            >
+            <input type="text" id="emotion-input" placeholder="Describe how you're feeling..." class="emotion-input">
             <button onclick="analyzeEmotion()" class="analyze-button">Analyze</button>
         </div>
         <div id="verse-display">
@@ -342,8 +376,10 @@
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
+                // Store in localStorage for related verses
+                localStorage.setItem('quranData', JSON.stringify(data));
                 const allVerses = [];
 
                 // Get the mapped emotion from our sentiment map
@@ -371,10 +407,10 @@
                 }
 
                 const verse = allVerses[Math.floor(Math.random() * allVerses.length)];
-                
+
                 const verseDisplay = document.getElementById('verse-display');
                 verseDisplay.style.opacity = '0';
-                
+
                 setTimeout(() => {
                     // Use the updateVerseDisplay function instead of directly updating the content
                     updateVerseDisplay(emotion, mappedEmotion, verse);
@@ -387,57 +423,70 @@
             }
         }
 
-        function determineEmotion(text, value) {
-            // For Quranic verses analysis
-            const emotionalWords = {
-                joyful: ['paradise', 'reward', 'blessed', 'mercy', 'glad', 'rejoice', 'happy', 'delight', 
-                         'pleasure', 'bliss', 'joy', 'garden', 'success', 'triumph', 'victory'],
-                peaceful: ['peace', 'tranquil', 'calm', 'gentle', 'harmony', 'serene', 'quiet', 'still',
-                          'rest', 'ease', 'comfort', 'secure', 'safe', 'protect', 'guide'],
-                fearful: ['fear', 'punishment', 'warning', 'terrible', 'severe', 'doom', 'torment',
-                         'horror', 'dread', 'terror', 'frightful', 'awful', 'painful'],
-                angry: ['wrath', 'curse', 'condemn', 'destroy', 'vengeance', 'fury', 'rage',
-                       'anger', 'punishment', 'disgrace', 'humiliate'],
-                remorseful: ['forgive', 'repent', 'sorry', 'regret', 'mercy', 'pardon', 'forgiveness',
-                            'guilt', 'shame', 'wrong', 'sin', 'mistake'],
-                reflective: ['ponder', 'think', 'reflect', 'contemplate', 'consider', 'remember',
-                            'understand', 'wisdom', 'sign', 'lesson']
-            };
+        const emotionalWords = {
+            joyful: ['paradise', 'reward', 'blessed', 'mercy', 'glad', 'rejoice', 'happy', 'delight',
+                'pleasure', 'bliss', 'joy', 'garden', 'success', 'triumph', 'victory'],
+            peaceful: ['peace', 'tranquil', 'calm', 'gentle', 'harmony', 'serene', 'quiet', 'still',
+                'rest', 'ease', 'comfort', 'secure', 'safe', 'protect', 'guide'],
+            fearful: ['fear', 'punishment', 'warning', 'terrible', 'severe', 'doom', 'torment',
+                'horror', 'dread', 'terror', 'frightful', 'awful', 'painful'],
+            angry: ['wrath', 'curse', 'condemn', 'destroy', 'vengeance', 'fury', 'rage',
+                'anger', 'punishment', 'disgrace', 'humiliate'],
+            remorseful: ['forgive', 'repent', 'sorry', 'regret', 'mercy', 'pardon', 'forgiveness',
+                'guilt', 'shame', 'wrong', 'sin', 'mistake'],
+            reflective: ['ponder', 'think', 'reflect', 'contemplate', 'consider', 'remember',
+                'understand', 'wisdom', 'sign', 'lesson']
+        };
 
+        function determineEmotion(text, value) {
             if (!text || typeof text !== 'string') return 'reflective';
             text = text.toLowerCase();
 
-            // Check emotional words first
+            // Calculate emotion scores based on word matches
+            const emotionScores = {};
             for (const [emotion, words] of Object.entries(emotionalWords)) {
-                if (words.some(word => text.includes(word))) {
-                    return emotion;
-                }
+                const matches = words.filter(word => text.includes(word));
+                const score = matches.length / words.length; // Normalize by total words for that emotion
+                emotionScores[emotion] = score;
             }
 
-            // Fallback to value-based determination
-            if (value >= 25) return 'joyful';
-            if (value >= 20) return 'peaceful';
-            if (value >= 15) return 'reflective';
-            if (value >= 10) return 'remorseful';
-            if (value >= 5) return 'angry';
-            return 'fearful';
+            // Find highest scoring emotion
+            const maxScore = Math.max(...Object.values(emotionScores));
+            const dominantEmotion = Object.entries(emotionScores)
+                .find(([_, score]) => score === maxScore)?.[0];
+
+            // Only classify if we have high confidence (>30% of emotional words match)
+            if (maxScore > 0.3) {
+                return dominantEmotion;
+            }
+
+            // More strict value-based determination with confidence thresholds
+            if (value >= 25 && text.includes('paradise', 'reward', 'blessed')) return 'joyful';
+            if (value >= 20 && text.includes('peace', 'tranquil', 'calm')) return 'peaceful';
+            if (value >= 15 && text.includes('reflect', 'ponder', 'think')) return 'reflective';
+            if (value >= 10 && text.includes('forgive', 'repent', 'sorry')) return 'remorseful';
+            if (value >= 5 && text.includes('wrath', 'curse', 'anger')) return 'angry';
+            if (value <= 5 && text.includes('fear', 'punishment', 'warning')) return 'fearful';
+
+            // Default to reflective if no strong emotion is detected
+            return 'reflective';
         }
 
         function analyzeEmotion() {
             // For user input analysis
             const conversationalWords = {
                 joyful: ['happy', 'excited', 'delighted', 'glad', 'cheerful', 'thrilled',
-                         'wonderful', 'fantastic', 'amazing', 'great', 'love', 'enjoy'],
+                    'wonderful', 'fantastic', 'amazing', 'great', 'love', 'enjoy'],
                 peaceful: ['calm', 'relaxed', 'peaceful', 'quiet', 'tranquil', 'serene',
-                          'content', 'comfortable', 'safe', 'secure', 'balanced'],
+                    'content', 'comfortable', 'safe', 'secure', 'balanced'],
                 fearful: ['scared', 'afraid', 'worried', 'anxious', 'nervous', 'terrified',
-                         'frightened', 'uneasy', 'stressed', 'panicked'],
+                    'frightened', 'uneasy', 'stressed', 'panicked'],
                 angry: ['angry', 'mad', 'furious', 'annoyed', 'irritated', 'frustrated',
-                       'upset', 'outraged', 'hate', 'bitter'],
+                    'upset', 'outraged', 'hate', 'bitter'],
                 remorseful: ['sorry', 'regret', 'guilty', 'ashamed', 'apologetic', 'bad',
-                            'mistake', 'fault', 'disappointed'],
+                    'mistake', 'fault', 'disappointed'],
                 reflective: ['think', 'wonder', 'consider', 'realize', 'understand', 'feel',
-                            'sense', 'believe', 'suppose', 'guess']
+                    'sense', 'believe', 'suppose', 'guess']
             };
 
             const input = document.getElementById('emotion-input').value.toLowerCase();
@@ -479,78 +528,146 @@
             const responseText = document.createElement('p');
             responseText.className = 'response-text';
             responseText.textContent = `It seems you're feeling ${emotion}, so here is a verse containing ${mappedEmotion} wisdom:`;
-            
+
             verseDisplay.innerHTML = '';
             verseDisplay.appendChild(responseText);
-            
+
             const verseText = document.createElement('p');
             verseText.className = 'verse-text';
             verseText.textContent = verse.ayah_en;
-            
+
             const verseReference = document.createElement('p');
             verseReference.className = 'verse-reference';
             verseReference.textContent = `${verse.surah_name_en}, Verse ${verse.ayah_no_surah}`;
-            
+
             verseDisplay.appendChild(verseText);
             verseDisplay.appendChild(verseReference);
-            
+
             // Add context and explanation
             const explanationText = document.createElement('p');
             explanationText.className = 'verse-context';
             explanationText.textContent = `This verse was chosen because it contains themes of ${mappedEmotion} 
                 that can help transform feelings of ${emotion} through Quranic wisdom.`;
-            
+
             const relatedVerses = findRelatedVerses(verse, 3); // Show 3 related verses
             const relatedVersesContainer = createRelatedVersesDisplay(relatedVerses);
-            
+
             verseDisplay.appendChild(explanationText);
             verseDisplay.appendChild(relatedVersesContainer);
         }
 
+        function getVerseTFIDF(text) {
+            const words = text.toLowerCase()
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+                .split(/\s+/);
+
+            const wordFreq = words.reduce((acc, word) => {
+                acc[word] = (acc[word] || 0) + 1;
+                return acc;
+            }, {});
+
+            const tfidf = {};
+            const totalWords = words.length;
+
+            Object.keys(wordFreq).forEach(word => {
+                const tf = wordFreq[word] / totalWords;
+                // Use emotional words from our existing dictionary
+                const idf = Math.log(1 + 1 / (Object.values(emotionalWords).flat().includes(word) ? 1 : 0.1));
+                tfidf[word] = tf * idf;
+            });
+
+            return tfidf;
+        }
+
+        function calculateCosineSimilarity(tfidf1, tfidf2) {
+            const allWords = new Set([...Object.keys(tfidf1), ...Object.keys(tfidf2)]);
+            let dotProduct = 0;
+            let magnitude1 = 0;
+            let magnitude2 = 0;
+
+            allWords.forEach(word => {
+                const val1 = tfidf1[word] || 0;
+                const val2 = tfidf2[word] || 0;
+                dotProduct += val1 * val2;
+                magnitude1 += val1 * val1;
+                magnitude2 += val2 * val2;
+            });
+
+            magnitude1 = Math.sqrt(magnitude1);
+            magnitude2 = Math.sqrt(magnitude2);
+
+            if (magnitude1 === 0 || magnitude2 === 0) return 0;
+            return dotProduct / (magnitude1 * magnitude2);
+        }
+
         function findRelatedVerses(currentVerse, count = 3) {
-            // Get verses from the same surah
-            const relatedVerses = [];
-            if (!currentVerse || !currentVerse.surah_name_en) return relatedVerses;
+            if (!currentVerse || !currentVerse.ayah_en) return [];
 
             try {
-                // Get verses before and after the current verse
-                const currentVerseNumber = parseInt(currentVerse.ayah_no_surah);
-                for (let i = Math.max(1, currentVerseNumber - 1); i <= currentVerseNumber + 1; i++) {
-                    if (i !== currentVerseNumber) {
-                        relatedVerses.push({
-                            ayah_en: `Verse ${i} context will be loaded on demand`,
-                            surah_name_en: currentVerse.surah_name_en,
-                            ayah_no_surah: i
-                        });
-                    }
+                const currentVerseTFIDF = getVerseTFIDF(currentVerse.ayah_en);
+                const data = JSON.parse(localStorage.getItem('quranData') || '{}');
+                const allVerses = [];
+
+                if (data && Array.isArray(data.children)) {
+                    data.children.forEach(surah => {
+                        if (surah && Array.isArray(surah.children)) {
+                            surah.children.forEach(verse => {
+                                if (verse && verse.ayah_en && verse.ayah_en !== currentVerse.ayah_en) {
+                                    const similarity = calculateCosineSimilarity(
+                                        currentVerseTFIDF,
+                                        getVerseTFIDF(verse.ayah_en)
+                                    );
+
+                                    if (similarity > 0.7) { // Only include verses with >75% similarity
+                                        allVerses.push({
+                                            ...verse,
+                                            similarity: similarity
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
                 }
+
+                return allVerses
+                    .sort((a, b) => b.similarity - a.similarity)
+                    .slice(0, count);
             } catch (error) {
                 console.error('Error finding related verses:', error);
+                return [];
             }
-
-            return relatedVerses.slice(0, count);
         }
 
         function createRelatedVersesDisplay(relatedVerses) {
             const container = document.createElement('div');
             container.className = 'related-verses';
-            
-            if (relatedVerses.length === 0) return container;
+
+            // Only create the container if there are highly similar verses
+            if (relatedVerses.length === 0) return document.createElement('div'); // Return empty div if no similar verses
 
             const heading = document.createElement('h3');
-            heading.textContent = 'Related Verses';
+            heading.textContent = 'Highly Similar Verses';
             heading.style.fontSize = '1.1rem';
             heading.style.marginBottom = '1rem';
             heading.style.color = 'var(--secondary-color)';
             container.appendChild(heading);
 
             relatedVerses.forEach(verse => {
-                const verseElement = document.createElement('p');
-                verseElement.className = 'verse-reference';
-                verseElement.textContent = `${verse.surah_name_en}, Verse ${verse.ayah_no_surah}`;
-                verseElement.style.cursor = 'pointer';
-                verseElement.style.marginBottom = '0.5rem';
-                verseElement.onclick = () => getVerse(verse.emotion || 'reflective');
+                const verseElement = document.createElement('div');
+                verseElement.className = 'related-verse-item';
+
+                const verseText = document.createElement('p');
+                verseText.className = 'verse-reference';
+                verseText.textContent = `${verse.surah_name_en}, Verse ${verse.ayah_no_surah}`;
+
+                const similarityScore = document.createElement('span');
+                similarityScore.className = 'similarity-score';
+                similarityScore.textContent = `${Math.round(verse.similarity * 100)}% similar`;
+
+                verseElement.appendChild(verseText);
+                verseElement.appendChild(similarityScore);
+                verseElement.onclick = () => getVerse(determineEmotion(verse.ayah_en, verse.value));
                 container.appendChild(verseElement);
             });
 
@@ -558,4 +675,5 @@
         }
     </script>
 </body>
-</html> 
+
+</html>
