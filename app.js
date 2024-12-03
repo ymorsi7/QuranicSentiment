@@ -1,36 +1,36 @@
-// State management
-let state = {
-    selectedEmotion: null,
-    intensity: 5,
-    context: '',
-};
-
-// DOM Elements
-const emotionButtons = document.querySelectorAll('.emotion-btn');
-const intensityContainer = document.querySelector('#intensity-container');
-const contextContainer = document.querySelector('#context-container');
-const intensitySlider = document.querySelector('#intensity');
-const contextInput = document.querySelector('#context');
-const recommendationsSection = document.querySelector('#recommendations');
-
-// Event Listeners
-emotionButtons.forEach(button => {
-    button.addEventListener('click', () => handleEmotionSelect(button));
-});
-
-intensitySlider.addEventListener('input', debounce(handleIntensityChange, 300));
-contextInput?.addEventListener('input', debounce(handleContextChange, 500));
-
-// Event Handlers
-function handleEmotionSelect(button) {
-    // Update UI
-    emotionButtons.forEach(btn => btn.classList.remove('selected'));
-    button.classList.add('selected');
+async function getRecommendations() {
+    if (!state.selectedEmotion) return;
     
-    // Show additional inputs
-    intensityContainer.style.display = 'block';
-    contextContainer.style.display = 'block';
+    showLoading();
     
+    try {
+        // Try HTTPS first, fall back to HTTP if needed
+        const baseUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000' 
+            : '';
+            
+        const response = await fetch(`${baseUrl}/api/recommend`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                emotion: state.selectedEmotion,
+                intensity: state.intensity,
+                context: state.context
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch recommendations');
+        }
+        
+        const recommendations = await response.json();
+        displayRecommendations(recommendations);
+    } catch (error) {
+        showError(`Connection error: ${error.message}`);
+    }
+}
     // Update state
     state.selectedEmotion = button.dataset.emotion;
     
